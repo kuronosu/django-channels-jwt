@@ -52,7 +52,6 @@ class RequiredUserConsumerMixin:
 
     async def connect(self):
         self.user = self.scope['user']
-        print(f'User {self.user} connected')
         if not self.is_user_authenticated():
             await self.close()
         else:

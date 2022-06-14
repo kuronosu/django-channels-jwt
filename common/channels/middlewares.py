@@ -29,7 +29,6 @@ class JWTAuthMiddleware:
                 user_credentials = self.get_user_credentials(jwt_payload)
                 user = await self.get_logged_in_user(user_credentials)
                 scope['user'] = user
-                print(f"user: {user}")
             else:
                 scope['user'] = anonymous
         except (InvalidSignatureError, KeyError, ExpiredSignatureError, DecodeError):

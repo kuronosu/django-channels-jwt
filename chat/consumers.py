@@ -19,4 +19,7 @@ class ChatConsumer(RequiredUserConsumerMixin, GroupedRoomConsumerMixin, AsyncEve
 
     # Receive message from room group
     async def chat_message(self, event):
-        await self.send_json(event['payload'])
+        await self.send_json({
+            'event': 'chat:new_message',
+            'payload': event['payload']
+        })
