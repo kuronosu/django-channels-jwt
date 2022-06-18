@@ -14,19 +14,46 @@
         document.getElementById("room-name").textContent
       );
 
+      const url = `ws://${window.location.host}/ws/chat/${roomName}/`
+
       const chatSocket = new WebSocket(
-        "ws://" + window.location.host + "/ws/chat/" + roomName + "/"
+        url
+        {% comment %} "ws://" + window.location.host + "/ws/chat/" + roomName + "/" {% endcomment %}
       );
+      chatSocket.addEventListener("open", () => {
+        console.log(`[websockets] Connected to ${url}`);
+        chatSocket.send(
+          JSON.stringify({event: "retrive_users", payload: ""})
+        );
+      });
+
+      chatSocket.addEventListener("close", () => {
+        console.log(`[websockets] Disconnected from ${url}`);
+      });
+
+      const chatLog = document.getElementById("chat-log");
 
       chatSocket.onmessage = function (e) {
         const data = JSON.parse(e.data);
+        console.log(`[websockets] Received: ${data.event}`);
+        if (data.event === "chat:new_message") {
+          chatLog.value += `${data.payload.user}:${data.payload.message}\n`;
+          chatLog.scrollTop = chatLog.scrollHeight;
+        } else if (data.event === "chat:user_list") {
+          console.log(`[websockets] Payload(chat:retrive_users): `, data.payload);
+        } else if (data.event === "chat:user_joined") {
+          chatLog.value += `${data.payload.user} joined the chat\n`;
+          chatLog.scrollTop = chatLog.scrollHeight;
+        } else if (data.event === "chat:user_left") {
+          chatLog.value += `${data.payload.user} left the chat\n`;
+          chatLog.scrollTop = chatLog.scrollHeight;
+        }
+
+        /*
         document.querySelector(
           "#chat-log"
         ).value += `${data.payload.user}:${data.payload.message}\n`;
-      };
-
-      chatSocket.onclose = function (e) {
-        console.error("Chat socket closed unexpectedly");
+        */
       };
 
       document.querySelector("#chat-message-input").focus();
